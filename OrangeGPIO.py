@@ -17,6 +17,11 @@ class OrangeGPIO(GPIO):
     
     def write(self, value):
         return super().write(value)
+    
+   
+    def cleanup_pull(self):
+        if self.pull_controller:
+            self.pull_controller.close()
 
 if __name__ == "__main__":
     assert(OrangeGPIO("D12").pin == 108)
