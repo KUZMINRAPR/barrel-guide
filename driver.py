@@ -1,3 +1,4 @@
+from gpio import GPIO
 class Driver:
     def __init__(self, pins_in: dict, pins_out: dict):
         self.pins_in = pins_in
@@ -10,6 +11,8 @@ class Driver:
             pin.export()
             pin.set_direction("out")
         
+        self.state = "stop"
+
         # Инициализация: все выходы LOW (по умолчанию)
         self._set_outputs(0, 0)
     
@@ -17,7 +20,7 @@ class Driver:
         for _, pin in self.pins_out.items():
             pin.unexport()
     
-    def run(self):
+    async def run(self):
 
         if 'EN' not in self.pins_in or 'INA' not in self.pins_in or 'INB' not in self.pins_in or 'PWMA' not in self.pins_in:
             raise ValueError("Требуются пины: EN, INA, INB, PWMA")
@@ -34,15 +37,19 @@ class Driver:
             if ina == 1 and inb == 1:
                 outa = 1
                 outb = 1  # Brake to VCC (PWM не влияет)
+                self.state = "stop"
             elif ina == 1 and inb == 0:
                 outa = 1 if pwm == 1 else 0
                 outb = 0
+                self.state = "forward"
             elif ina == 0 and inb == 1:
                 outa = 0
                 outb = 1 if pwm == 1 else 0
+                self.state = "backward"
             else:  # 0 0
                 outa = 0
                 outb = 0
+                self.state = "stop"
         
         self._set_outputs(outa, outb)
     

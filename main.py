@@ -1,6 +1,8 @@
 import time
 from gpio import GPIO
 from driver import Driver
+from motor import Motor
+from encoder import Encoder
 import math
 
 PINS = {
@@ -13,9 +15,11 @@ PINS = {
 DRIVER_PINS_IN = {"EN": GPIO(6), "INA": GPIO(13), "INB": GPIO(19), "PWMA": GPIO(26)}
 DRIVER_PINS_OUT = {"A": GPIO(5), "B": GPIO(7)}
 
-WHEEL_DIAMETER = 0.3 # В метрах
+WHEEL_DIAMETER = 0.5 # В метрах
 ENCODER_PPR = 2 # Импульсов за оборот
 # GEAR_RATIO = 48 # Передаточное число редуктора
+
+MOTOR_SPEED = 10000
 
 TICKS_PER_REV = ENCODER_PPR # * GEAR_RATIO
 print(f"Всего оборотов: {TICKS_PER_REV}")
@@ -31,12 +35,22 @@ print(f"Всего нужно тиков: {TOTAL_TICKS + 1}")
 # Экспортируем и настраиваем все пины
 for name, pin in PINS.items():
     pin.export()            
-    pin.set_direction("in")
+    pin.set_direction("out")
 
-last = {name: pin.read() for name, pin in PINS.items()}
+for name, pin in DRIVER_PINS_IN.items():
+    pin.export()
+    pin.set_direction("out")
 
+for name, pin in DRIVER_PINS_OUT.items():
+    pin.export()
+    pin.set_direction("out")
 
 driver = Driver(DRIVER_PINS_IN, DRIVER_PINS_OUT)
+driver.state = "forward"
+encoder = Encoder(PINS)
+motor = Motor(driver, MOTOR_SPEED,encoder)
+
+TICK_TIME = 3600 / motor.speed # Время одного тика
 
 print("ENC CHECK: GPIO с pull-down резисторами")
 print("Ctrl+C для выхода.\n")
@@ -44,18 +58,11 @@ print("Ctrl+C для выхода.\n")
 try:
     counter = 0
     while counter < TOTAL_TICKS + 1:
-        changed = False
-        driver.run()
-        for name, pin in PINS.items():
-            v = pin.read()
-            if v != last[name]:
-                changed = True
-                last[name] = v
-                print(f"{time.time():.3f}  {name} (GPIO{pin}) = {v}")
-                counter += 1
-                print(f"Счетчик пройденных тиков {counter}")
-        if not changed:
-            time.sleep(0.01)
+        motor.run()
+        if (encoder.tick()):
+            counter += 1
+            print(f"Счетчик: {counter}")
+        time.sleep(TICK_TIME)
 except KeyboardInterrupt:
     pass
 finally:
