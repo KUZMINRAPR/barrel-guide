@@ -1,34 +1,40 @@
 from gpio import GPIO
 class Driver:
-    def __init__(self, pins_in: dict, pins_out: dict):
-        self.pins_in = pins_in
-        for _, pin in pins_in.items():
-            pin.export()
-            pin.set_direction("in")
-        
-        self.pins_out = pins_out  
-        for _, pin in pins_out.items():
-            pin.export()
-            pin.set_direction("out")
-        
-        self.state = "stop"
+    def __init__(self, pins: dict, state="stop"):
+        self.pins = pins
+        self.state = state
 
         # Инициализация: все выходы LOW (по умолчанию)
         self._set_outputs(0, 0)
     
     def __del__(self):
-        for _, pin in self.pins_out.items():
-            pin.unexport()
-    
-    async def run(self):
 
-        if 'EN' not in self.pins_in or 'INA' not in self.pins_in or 'INB' not in self.pins_in or 'PWMA' not in self.pins_in:
+        for _, pin in self.pins.items():
+            pin.unexport()
+
+    def forward(self):
+        self.pins['EN'].write(1)
+        self.pins['INA'].write(1)
+        self.pins['INB'].write(0)
+        self.pins['PWMA'].write(1)
+        self.state = "forward"
+    
+    def backward(self):
+        self.pins['EN'].write(1)
+        self.pins['INA'].write(0)
+        self.pins['INB'].write(1)
+        self.pins['PWMA'].write(1)
+        self.state = "backward"
+    
+    def run(self):
+
+        if 'EN' not in self.pins or 'INA' not in self.pins or 'INB' not in self.pins or 'PWMA' not in self.pins:
             raise ValueError("Требуются пины: EN, INA, INB, PWMA")
         
-        en = self.pins_in['EN'].read()
-        ina = self.pins_in['INA'].read()
-        inb = self.pins_in['INB'].read()
-        pwm = self.pins_in['PWMA'].read()
+        en = self.pins['EN'].read()
+        ina = self.pins['INA'].read()
+        inb = self.pins['INB'].read()
+        pwm = self.pins['PWMA'].read()
         
         if en == 0:
             outa = 0
@@ -54,5 +60,5 @@ class Driver:
         self._set_outputs(outa, outb)
     
     def _set_outputs(self, outa, outb):
-        self.pins_out['A'].write(outa)
-        self.pins_out['B'].write(outb)
+        self.pins['A'].write(outa)
+        self.pins['B'].write(outb)
