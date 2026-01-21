@@ -19,7 +19,7 @@ LEFT_DRIVER_PINS = {
     "A": GPIO(5),
     "B": GPIO(7)
 }
-RIGHT_DRIVER_PINS = {} # TODO: Заполнить 
+RIGHT_DRIVER_PINS = LEFT_DRIVER_PINS.copy() # TODO: Заполнить 
 
 WHEEL_DIAMETER = 0.5 # В метрах
 ENCODER_PPR = 2 # Импульсов за оборот
