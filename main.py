@@ -65,6 +65,8 @@ motors = {
     "left": Motor(drivers["left"], MOTOR_PWM, encoders["left"]),
     "right": Motor(drivers["right"], MOTOR_PWM, encoders["right"])
 }
+for driver in drivers.values():
+    driver.forward()
 
 for encoder in encoders.values():
     encoder.start()

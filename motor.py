@@ -1,6 +1,7 @@
 from driver import Driver
 from encoder import Encoder
 import threading
+import time
 
 class Motor(threading.Thread):
     def __init__(self, driver: Driver, pwm: float, encoder: Encoder, freq_hz=200):
@@ -19,6 +20,9 @@ class Motor(threading.Thread):
 
     def run(self):
         while not self._stop_event.is_set():
+
+            self.driver.run()
+
             if self.driver.state == "forward":
                 if self.encoder.pins["A"].read() == 0:
                     self.encoder.pins["A"].write(1)
@@ -36,3 +40,5 @@ class Motor(threading.Thread):
             else:
                 self.encoder.pins["A"].write(0)
                 self.encoder.pins["B"].write(0)
+            time.sleep(0.001)
+            
