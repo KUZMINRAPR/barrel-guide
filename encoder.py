@@ -18,9 +18,8 @@ class Encoder(threading.Thread):
     def run(self):
         self.last = {name: pin.read() for name, pin in self.pins.items()}
         while not self._stop_event.is_set():
-            for name, pin in self.pins.items():
-                if self.last[name] != pin.read():
-                    with self.lock:
-                        self.ticks += 1
-                    self.last[name] = pin.read()
+            if self.last["A"] != self.pins["A"].read():
+                with self.lock:
+                    self.ticks += 1
+                self.last["A"] = self.pins["A"].read()
             time.sleep(0.001)
