@@ -1,25 +1,33 @@
 import time
 from gpio import GPIO
+from OrangeGPIO import OrangeGPIO
 from driver import Driver
 from motor import Motor
 from encoder import Encoder
 import math
 
 ENCODER_PINS = {
-    "L_A": GPIO(17), # 11 pin
-    "L_B": GPIO(27), # 13 pin
-    "R_A": GPIO(22), # 15 pin
-    "R_B": GPIO(9),  # 37 pin
+    "L_A": OrangeGPIO("I15"),#GPIO(17), # 11 pin
+    "L_B": OrangeGPIO("I12"),#GPIO(27), # 13 pin
+    "R_A": OrangeGPIO("I2"),#GPIO(22), # 15 pin
+    "R_B": OrangeGPIO("I16")#GPIO(9),  # 37 pin
 }
 LEFT_DRIVER_PINS = {
-    "EN": GPIO(6),   
-    "INA": GPIO(13),
-    "INB": GPIO(19),
-    "PWMA": GPIO(26),
-    "A": GPIO(5),
-    "B": GPIO(7)
+    "EN": OrangeGPIO("H9"),   
+    "INA": OrangeGPIO("I9"),
+    "INB": OrangeGPIO("I11"),
+    "PWMA": OrangeGPIO("C12"),
+    "A": OrangeGPIO("I4"),
+    "B": OrangeGPIO("I3")
 }
-RIGHT_DRIVER_PINS = LEFT_DRIVER_PINS.copy() # TODO: Заполнить 
+RIGHT_DRIVER_PINS = {
+    "EN": OrangeGPIO("I8"),   
+    "INA": OrangeGPIO("I7"),
+    "INB": OrangeGPIO("I1"),
+    "PWMA": OrangeGPIO("I14"),
+    "A": OrangeGPIO("H4"),
+    "B": OrangeGPIO("I6")
+}
 
 WHEEL_DIAMETER = 0.5 # В метрах
 ENCODER_PPR = 2 # Импульсов за оборот

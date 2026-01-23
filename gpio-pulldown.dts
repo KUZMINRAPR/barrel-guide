@@ -1,0 +1,27 @@
+/dts-v1/;
+/plugin/;
+
+/ {
+    compatible = "allwinner,sun50i-h618";
+
+    fragment@0 {
+        target = <&pio>;
+
+        __overlay__ {
+            // Encoder inputs (pull-down для стабильности)
+            encoder_pins: encoder-pins {
+                pins = "PI15", "PI12", "PI2", "PI16";  // L_A(11), L_B(13), R_A(15), R_B(37)
+                function = "gpio_in";
+                bias-pull-down;
+            };
+
+            // Driver outputs (no pull, output mode)
+            driver_pins: driver-pins {
+                pins = "PH9", "PI9", "PI11", "PC12", "PI4", "PI3",  // LEFT: EN, INA, INB, PWMA, A, B
+                       "PH0", "PH1", "PI1", "PI14", "PH4", "PI6";  // RIGHT: EN, INA, INB, PWMA, A, B
+                function = "gpio_out";
+                bias-pull-down;
+            };
+        };
+    };
+};
